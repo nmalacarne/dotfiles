@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+#  batterybar; displays battery percentage as a bar on i3blocks
+#  
+#  Copyright 2015 Keftaa <adnan.37h@gmail.com>
+#  
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2 of the License, or
+#  (at your option) any later version.
+#  
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#  
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+#  MA 02110-1301, USA.
+#  
+#  
+
+output=$(free -g | sed -n '2p')
+
+total=$(echo "$output" | awk '{print $2}')
+used=$(echo "$output" | awk '{print $3}')
+
+percentage=$(echo "$used/$total * 100" | bc -l) ; 
+percentage=$(echo ${percentage%.*})
+
+status="med"
+
+color="#00AFE3"
+
+if [ $percentage -lt 20 ]; then
+    squares="■"
+    status="low"
+elif [ $percentage -lt 40 ]; then
+    squares="■■"
+elif [ $percentage -lt 60 ]; then
+    squares="■■■"
+elif [ $percentage -lt 80 ]; then
+    squares="■■■■"
+else
+    squares="■■■■■"
+    status="max"
+fi
+
+if [[ "$status" = "Unknown" ]]; then
+    squares="<sup>?</sup>$squares"
+fi
+
+if [[ "$BLOCK_BUTTON" -eq 1 ]]; then 
+    echo "<span foreground=\"$color\">$percentage%$remaining_formatted</span>"
+fi
+    echo "<span foreground=\"$color\">$squares</span>" 
